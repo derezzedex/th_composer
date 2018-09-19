@@ -1,0 +1,27 @@
+name: th_composer
+version: "1.0"
+author: derezzedex
+about: Program that encodes files or strings to be later used in the TH challenges
+args:
+    - input:
+        short: i
+        long: input
+        value_name: FILE
+        help: Sets the input file to use
+        takes_value: true
+        conflicts_with:
+          - string
+    - string:
+        short: s
+        long: string
+        takes_value: true
+        value_name: string
+        help: Encode the string
+        conflicts_with:
+          - input
+    - output:
+        short: o
+        long: output
+        value_name: DIRECTORY
+        help: Sets a custom output directory
+        takes_value: true
