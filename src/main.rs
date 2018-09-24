@@ -1,13 +1,16 @@
 #[macro_use]
 extern crate clap;
-mod morse;
+mod encoder;
+mod decoder;
 mod data;
 
-use std::io;
+mod morse;
+
 use std::io::prelude::*;
 use std::fs::File;
 use clap::App;
 use data::Data;
+
 use morse::Morse;
 
 fn main() {
@@ -15,6 +18,7 @@ fn main() {
     let cli = load_yaml!(concat!(env!("CARGO_MANIFEST_DIR"), "/cli/default.yml"));
     let matches = App::from_yaml(cli).get_matches();
 
+    let mut data: Option<Data> = None;
     if matches.is_present("input"){
         let path = matches.value_of("input").unwrap(); //Is present, so unwrap
         println!("Input: {:?}", path);
@@ -22,15 +26,21 @@ fn main() {
         let mut buffer: Vec<u8> = Vec::new();
         file.read_to_end(&mut buffer).expect("Couldn't read the input file!");
 
-        let msg = Data{bytes: buffer};
-        println!("Hello, {}!", msg.to_morse());
+        data = Some(Data::new(buffer));
     }else if matches.is_present("string"){
         let string = matches.value_of("string").unwrap(); //Is present, so unwrap
         println!("String: {:?}", string);
-        let byts = String::from(string).into_bytes();
+        let bytes = String::from(string).into_bytes();
 
-        let msg = Data{bytes: byts};
-        println!("Hello, {}!", msg.to_morse());
+        data = Some(Data::new(bytes));
+    }
+
+    if let Some(data) = data{
+        if matches.is_present("encode"){
+            println!("Encoded: {}", encoder::encode(Morse, data).expect("Couldn't encode"));
+        }else if matches.is_present("decode"){
+            println!("Decoded: {}", decoder::decode(Morse, data).expect("Couldn't decode"));
+        }
     }
 
     if let Some(output) = matches.value_of("output"){

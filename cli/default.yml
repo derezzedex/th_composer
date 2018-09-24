@@ -25,3 +25,20 @@ args:
         value_name: DIRECTORY
         help: Sets a custom output directory
         takes_value: true
+    - encode:
+        short: e
+        long: encode
+        required_unless_one: [ decode ]
+        conflicts_with:
+          - decode
+    - decode:
+        short: d
+        long: decode
+        required_unless_one: [ encode ]
+        conflicts_with:
+          - encode
+    - technique:
+        help: sets the technique to encode/decode
+        value_name: technique
+        possible_values: [ morse ]
+        index: 1

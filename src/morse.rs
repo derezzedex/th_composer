@@ -1,53 +1,112 @@
 use data::Data;
+use encoder::Encodable;
+use decoder::Decodable;
 
-pub trait Morse{
-    fn to_morse(&self) -> String;
-    //fn from_morse(&self) -> String;
+pub struct Morse;
+const SEPARATOR: &str = " ";
+
+#[derive(Debug)]
+pub enum MorseError{
+    InvalidChar(char),
 }
 
-fn substitute_morse(chr: char) -> String{
-    let morse: &str = {
-        match chr {
-            'A' => "·−",
-            'B' => "−···",
-            'C' => "−·−·",
-            'D' => "−··",
-            'E' => "·",
-            'F' => "··−·",
-            'G' => "−−·",
-            'H' => "····",
-            'I' => "··",
-            'J' => "·−−−",
-            'K' => "−·−",
-            'L' => "·−··",
-            'M' => "−−",
-            'N' => "−·",
-            'O' => "−−−",
-            'P' => "·−−·",
-            'Q' => "−−·−",
-            'R' => "·−·",
-            'S' => "···",
-            'T' => "−",
-            'U' => "··−",
-            'V' => "···−",
-            'W' => "·−−",
-            'X' => "−··−",
-            'Y' => "−·−−",
-            'Z' => "−−··",
-            ' ' => " ",
-            _ => panic!("{} couldn't be used in substitution.", chr),
-        }
-    };
-    morse.to_string()
+impl Encodable<Data> for Morse{
+    type EncodeError = MorseError;
+    fn encode(&self, data: Data) -> Result<Data, MorseError>{
+        let chars = data
+                    .to_string()
+                    .to_uppercase()
+                    .chars()
+                    .map(|s| s.to_string())
+                    .collect::<Vec<String>>()
+                    .join(SEPARATOR)
+                    .chars()
+                    .into_iter()
+                    .map(to_morse)
+                    .map(|s| s.expect("Couldn't encode"))
+                    .collect::<String>();
+
+        Ok(Data::new(chars.into_bytes()))
+    }
 }
 
-impl Morse for Data{
-    fn to_morse(&self) -> String {
-        self.to_string()
-            .to_uppercase()
-            .chars()
-            .into_iter()
-            .map(substitute_morse)
-            .collect::<String>()
+impl Decodable<Data> for Morse{
+    type DecodeError = MorseError;
+    fn decode(&self, data: Data) -> Result<Data, MorseError>{
+        let chars = data
+                    .to_string()
+                    .split(SEPARATOR)
+                    .into_iter()
+                    .map(from_morse)
+                    .map(|s| s.expect("Couldn't decode"))
+                    .collect::<String>();
+
+        Ok(Data::new(chars.into_bytes()))
+    }
+}
+
+fn to_morse<'a>(chr: char) -> Result<&'a str, MorseError>{
+    match chr {
+        'A' => Ok(".−"),
+        'B' => Ok("−..."),
+        'C' => Ok("−.−."),
+        'D' => Ok("−.."),
+        'E' => Ok("."),
+        'F' => Ok("..−."),
+        'G' => Ok("−−."),
+        'H' => Ok("...."),
+        'I' => Ok(".."),
+        'J' => Ok(".−−−"),
+        'K' => Ok("−.−"),
+        'L' => Ok(".−.."),
+        'M' => Ok("−−"),
+        'N' => Ok("−."),
+        'O' => Ok("−−−"),
+        'P' => Ok(".−−."),
+        'Q' => Ok("−−.−"),
+        'R' => Ok(".−."),
+        'S' => Ok("..."),
+        'T' => Ok("−"),
+        'U' => Ok("..−"),
+        'V' => Ok("...−"),
+        'W' => Ok(".−−"),
+        'X' => Ok("−..−"),
+        'Y' => Ok("−.−−"),
+        'Z' => Ok("−−.."),
+        ' ' => Ok(" "),
+        _ => Err(MorseError::InvalidChar(chr)),
+    }
+}
+
+fn from_morse<'a>(morse: &'a str) -> Result<char, MorseError>{
+    match morse {
+         ".−" => Ok('A'),
+         "−..." => Ok('B'),
+         "−.−." => Ok('C'),
+         "−.." => Ok('D'),
+         "." => Ok('E'),
+         "..−." => Ok('F'),
+         "−−." => Ok('G'),
+         "...." => Ok('H'),
+         ".." => Ok('I'),
+         ".−−−" => Ok('J'),
+         "−.−" => Ok('K'),
+         ".−.." => Ok('L'),
+         "−−" => Ok('M'),
+         "−." => Ok('N'),
+         "−−−" => Ok('O'),
+         ".−−." => Ok('P'),
+         "−−.−" => Ok('Q'),
+         ".−." => Ok('R'),
+         "..." => Ok('S'),
+         "−" => Ok('T'),
+         "..−" => Ok('U'),
+         "...−" => Ok('V'),
+         ".−−" => Ok('W'),
+         "−..−" => Ok('X'),
+         "−.−−" => Ok('Y'),
+         "−−.." => Ok('Z'),
+         " " => Ok(' '),
+         _ => Err(MorseError::InvalidChar(morse.chars().next().unwrap())),
     }
 }
