@@ -5,6 +5,6 @@ pub trait Decodable<T>{
     fn decode(&self, d: T) -> Result<T, Self::DecodeError>;
 }
 
-pub fn decode<T: Decodable<Data>>(t: T, d: Data) -> Result<Data, T::DecodeError>{
+pub fn decode<T: ?Sized + Decodable<Data>>(t: &T, d: Data) -> Result<Data, T::DecodeError>{
     t.decode(d)
 }

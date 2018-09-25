@@ -12,7 +12,7 @@ pub enum MorseError{
 
 impl Encodable<Data> for Morse{
     type EncodeError = MorseError;
-    fn encode(&self, data: Data) -> Result<Data, MorseError>{
+    fn encode(&self, data: Data) -> Result<Data, Self::EncodeError>{
         let chars = data
                     .to_string()
                     .to_uppercase()
@@ -32,7 +32,7 @@ impl Encodable<Data> for Morse{
 
 impl Decodable<Data> for Morse{
     type DecodeError = MorseError;
-    fn decode(&self, data: Data) -> Result<Data, MorseError>{
+    fn decode(&self, data: Data) -> Result<Data, Self::DecodeError>{
         let chars = data
                     .to_string()
                     .split(SEPARATOR)

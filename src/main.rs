@@ -1,22 +1,28 @@
-#[macro_use]
 extern crate clap;
 mod encoder;
 mod decoder;
 mod data;
 
 mod morse;
+mod reverse;
 
 use std::io::prelude::*;
 use std::fs::File;
 use clap::App;
 use data::Data;
 
-use morse::Morse;
+use morse::*;
+use reverse::*;
+
+use encoder::Encodable;
+use decoder::Decodable;
+
+const DEFAULT_YAML: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/cli/default.yml"));
 
 fn main() {
 
-    let cli = load_yaml!(concat!(env!("CARGO_MANIFEST_DIR"), "/cli/default.yml"));
-    let matches = App::from_yaml(cli).get_matches();
+    let cli = clap::YamlLoader::load_from_str(DEFAULT_YAML).expect("Couldn't include YAML file");
+    let matches = App::from_yaml(&cli[0]).get_matches();
 
     let mut data: Option<Data> = None;
     if matches.is_present("input"){
@@ -37,9 +43,19 @@ fn main() {
 
     if let Some(data) = data{
         if matches.is_present("encode"){
-            println!("Encoded: {}", encoder::encode(Morse, data).expect("Couldn't encode"));
+            let technique: Box<Encodable<Data>> = match matches.value_of("technique"){
+                Some("morse") => Box::new(Morse),
+                Some("reverse") => Box::new(Reverse),
+                e => panic!("Not implemented: {:?}", e.unwrap()),
+            };
+            println!("Encoded: {}", encoder::encode(&*technique, data).expect("Couldn't encode"));
         }else if matches.is_present("decode"){
-            println!("Decoded: {}", decoder::decode(Morse, data).expect("Couldn't decode"));
+            let technique: Box<Decodable<Data>> = match matches.value_of("technique"){
+                Some("morse") => Box::new(Morse),
+                Some("reverse") => Box::new(Reverse),
+                _ => Box::new(Morse),
+            };
+            println!("Decoded: {}", decoder::decode(&*technique, data).expect("Couldn't decode"));
         }
     }
 
