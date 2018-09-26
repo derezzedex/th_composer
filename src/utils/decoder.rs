@@ -1,4 +1,4 @@
-use data::Data;
+use utils::data::Data;
 
 pub trait Decodable<T>{
     type DecodeError;

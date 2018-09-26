@@ -1,8 +1,9 @@
-use data::Data;
-use encoder::Encodable;
-use decoder::Decodable;
+use utils::data::Data;
+use utils::encoder::Encodable;
+use utils::decoder::Decodable;
 
 pub struct Reverse;
+#[derive(Debug)]
 pub enum ReverseError{}
 
 impl Encodable<Data> for Reverse{
