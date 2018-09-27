@@ -40,5 +40,5 @@ args:
     - technique:
         help: sets the technique to encode/decode
         value_name: technique
-        possible_values: [ morse, reverse, keypad, b64 ]
+        possible_values: [ morse, reverse, keypad, binary, lowerhex, upperhex, base32, base64 ]
         index: 1

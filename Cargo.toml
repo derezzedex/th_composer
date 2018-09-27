@@ -1,7 +1,9 @@
 [package]
 name = "th_composer"
-version = "0.1.1"
-authors = ["Gabri"]
+version = "0.1.2"
+authors = ["derezzedex"]
 
 [dependencies]
 clap = {version = "2.32", features = ["yaml"]}
+data-encoding = "2.1.1"
+data-encoding-macro = "0.1.4"

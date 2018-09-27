@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Data{
     bytes: Vec<u8>,
 }
@@ -16,5 +16,13 @@ impl Data{
         Data{
             bytes: b,
         }
+    }
+
+    pub fn mut_bytes(&mut self) -> &mut [u8]{
+        &mut self.bytes[..]
+    }
+
+    pub fn bytes(&self) -> &[u8]{
+        &self.bytes[..]
     }
 }
